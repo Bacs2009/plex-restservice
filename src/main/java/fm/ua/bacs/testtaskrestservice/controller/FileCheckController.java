@@ -22,7 +22,7 @@ public class FileCheckController {
     @GetMapping("/filescan")
     public Response fileScanner(@RequestParam(name = "filename") String filename) throws IOException {
 
-        return searchFile(filename, "48991");
+        return searchFile(filename, "199350");
     }
 
     private Response searchFile(String filename, String search) throws IOException {
@@ -44,7 +44,7 @@ public class FileCheckController {
             if (file.getName().equals(filename)) {
                 if (searchInFile(file, search)) {
                     copyFile(file, new File("C:\\Users\\Bacs\\Downloads\\rest-service-master\\out\\" + filename));
-                    message = "File has been found and string " + search + " was found";
+                    message = "File has been found and string " + search + " was found. File has been copied to 'out' directory";
                     status = 200;
                 } else {
                     message = "File has been found but string " + search + " was not found";
@@ -99,8 +99,7 @@ public class FileCheckController {
         }
     }
 
-    private void copyFile(File sourceFile, File destFile)
-            throws IOException {
+    private void copyFile(File sourceFile, File destFile) throws IOException {
         if (!sourceFile.exists()) {
             return;
         }
