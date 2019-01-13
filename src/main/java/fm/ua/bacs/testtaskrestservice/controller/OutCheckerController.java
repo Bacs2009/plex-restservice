@@ -71,7 +71,8 @@ public class OutCheckerController {
 
         for (FTPFile file : files) {
             if (!file.isDirectory()) {
-                if (ftp.copyFile(props.getProperties().getProperty("ftp.out") + file.getName(), props.getProperties().getProperty("ftp.ready") + file.getName(), true)) {
+                if (ftp.downloadFromFTP(props.getProperties().getProperty("ftp.out") + file.getName(), new File(props.getProperties().getProperty("local.ready") + file.getName()))) {
+                    ftp.copyFile(props.getProperties().getProperty("ftp.out") + file.getName(), props.getProperties().getProperty("ftp.ready") + file.getName(), true);
                     ftp.copyFile(props.getProperties().getProperty("ftp.ready") + file.getName(), props.getProperties().getProperty("ftp.bkp") + file.getName(), false);
                     fm.ua.bacs.testtaskrestservice.helpers.Response response = new fm.ua.bacs.testtaskrestservice.helpers.Response();
                     System.out.println(response.makeResponse(file.getName(), "File is ready", 200));

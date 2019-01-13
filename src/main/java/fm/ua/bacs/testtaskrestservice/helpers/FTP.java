@@ -87,7 +87,42 @@ public class FTP {
         FileInputStream fis = null;
 
         fis = new FileInputStream(file);
-        return ftpClient.storeFile(props.getProperties().getProperty("ftp.out") + file.getName(), fis);
 
+        if( ftpClient.storeFile(props.getProperties().getProperty("ftp.out") + file.getName(), fis)){
+            ftpClient.logout();
+            ftpClient.disconnect();
+            return true;
+        }
+        return false;
+    }
+
+    public boolean downloadFromFTP(String remote, File local) throws IOException {
+
+        FTPClient ftpClient = getClient();
+        try {
+
+            ftpClient.enterLocalPassiveMode();
+            ftpClient.setFileType(org.apache.commons.net.ftp.FTP.BINARY_FILE_TYPE);
+
+            OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(local));
+            boolean success = ftpClient.retrieveFile(remote, outputStream);
+            outputStream.close();
+
+            if (success) {
+                return true;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (ftpClient.isConnected()) {
+                    ftpClient.logout();
+                    ftpClient.disconnect();
+                }
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+        return false;
     }
 }
