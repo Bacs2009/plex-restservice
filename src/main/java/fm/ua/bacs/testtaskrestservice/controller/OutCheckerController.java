@@ -13,6 +13,8 @@ import java.util.Collection;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static fm.ua.bacs.testtaskrestservice.helpers.Helper.FILE_COUNTER;
+
 public class OutCheckerController {
 
     public void checkOutFolder() {
@@ -30,6 +32,17 @@ public class OutCheckerController {
                 },
                 0,
                 5000
+        );
+
+        new Timer().schedule(
+                new TimerTask() {
+                    @Override
+                    public void run() {
+                        System.out.println(FILE_COUNTER + " files already have been proceed");
+                    }
+                },
+                0,
+                60000
         );
     }
 
@@ -58,9 +71,11 @@ public class OutCheckerController {
 
         for (FTPFile file : files) {
             if (!file.isDirectory()) {
-                ftp.copyFile(props.getProperties().getProperty("ftp.out") + file.getName(), props.getProperties().getProperty("ftp.ready") + file.getName());
-                fm.ua.bacs.testtaskrestservice.helpers.Response response = new fm.ua.bacs.testtaskrestservice.helpers.Response();
-                System.out.println(response.makeResponse(file.getName(), "File is ready", 200));
+                if (ftp.copyFile(props.getProperties().getProperty("ftp.out") + file.getName(), props.getProperties().getProperty("ftp.ready") + file.getName(), true)) {
+                    ftp.copyFile(props.getProperties().getProperty("ftp.ready") + file.getName(), props.getProperties().getProperty("ftp.bkp") + file.getName(), false);
+                    fm.ua.bacs.testtaskrestservice.helpers.Response response = new fm.ua.bacs.testtaskrestservice.helpers.Response();
+                    System.out.println(response.makeResponse(file.getName(), "File is ready", 200));
+                }
             }
         }
     }

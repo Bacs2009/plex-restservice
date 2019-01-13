@@ -8,6 +8,8 @@ import java.nio.channels.FileChannel;
 import java.util.Collection;
 
 public class Helper {
+    public static int FILE_COUNTER = 0;
+
     public void addTree(File file, Collection<File> all) {
         File[] children = file.listFiles();
         if (children != null) {

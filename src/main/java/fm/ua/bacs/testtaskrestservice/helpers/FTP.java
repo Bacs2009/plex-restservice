@@ -7,6 +7,8 @@ import java.io.*;
 import java.util.Objects;
 import java.util.Scanner;
 
+import static fm.ua.bacs.testtaskrestservice.helpers.Helper.FILE_COUNTER;
+
 public class FTP {
     public FTPFile[] getFiles(String dir) throws IOException {
         FTPClient ftpClient = getClient();
@@ -39,27 +41,35 @@ public class FTP {
         return false;
     }
 
-    public void copyFile(String from, String to) throws IOException {
+    public boolean copyFile(String from, String to, Boolean remove) throws IOException {
         FTPClient ftpClient = getClient();
         FTPClient ftpClient2 = getClient();
+        Props props = new Props();
 
         InputStream stream = ftpClient.retrieveFileStream(from);
-        ftpClient2.storeFile(to, stream);
+        if (ftpClient2.storeFile(to, stream)) {
+            ftpClient.logout();
+            ftpClient.disconnect();
+            ftpClient2.logout();
+            ftpClient2.disconnect();
+            FILE_COUNTER++;
+            if (remove) {
+                deleteFile(from);
+            }
+            return true;
+        }
 
-        ftpClient.logout();
-        ftpClient.disconnect();
-        ftpClient2.disconnect();
-        ftpClient2.disconnect();
+        return false;
     }
 
-    public void moveFile(String from, String to) throws IOException {
+    private void deleteFile(String file) throws IOException {
         FTPClient ftpClient = getClient();
 
-        InputStream stream = ftpClient.retrieveFileStream(from);
-        ftpClient.storeFile(to, stream);
+        if (ftpClient.deleteFile(file)) {
+            ftpClient.logout();
+            ftpClient.disconnect();
+        }
 
-        ftpClient.logout();
-        ftpClient.disconnect();
     }
 
     private FTPClient getClient() throws IOException {
@@ -67,6 +77,17 @@ public class FTP {
         FTPClient ftpClient = new FTPClient();
         ftpClient.connect(props.getProperties().getProperty("ftp.server"), Integer.parseInt(props.getProperties().getProperty("ftp.port")));
         ftpClient.login(props.getProperties().getProperty("ftp.user"), props.getProperties().getProperty("ftp.pass"));
+        ftpClient.setFileType(org.apache.commons.net.ftp.FTP.BINARY_FILE_TYPE);
         return ftpClient;
+    }
+
+    public boolean uploadToFTP(File file) throws IOException {
+        Props props = new Props();
+        FTPClient ftpClient = getClient();
+        FileInputStream fis = null;
+
+        fis = new FileInputStream(file);
+        return ftpClient.storeFile(props.getProperties().getProperty("ftp.out") + file.getName(), fis);
+
     }
 }

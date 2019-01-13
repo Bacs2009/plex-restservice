@@ -29,34 +29,17 @@ public class FileCheckController {
         int status = 404;
 
 /*-----------------------        Code for working with local folders ----------------------------------*/
-
-//        Collection<File> all = new ArrayList<>();
-//        helper.addTree(new File("C:\\Users\\Bacs\\Downloads\\rest-service-master\\in"), all);
-
-//        for (File file : all) {
-//            if (file.getName().equals(filename)) {
-//                if (searchInFile(file, search)) {
-//                    helper.copyFile(file, new File("C:\\Users\\Bacs\\Downloads\\rest-service-master\\out\\" + filename));
-//                    message = "File has been found, checked and copied to out folder";
-//                    status = 200;
-//                } else {
-//                    message = "File has been found but string " + search + " was not found";
-//                    status = 404;
-//                }
-//            }
-//        }
-
-/*-----------------------        Code for working with local folders ----------------------------------*/
-
         Props props = new Props();
-        FTPFile[] files = ftp.getFiles(props.getProperties().getProperty("ftp.in"));
+        Collection<File> all = new ArrayList<>();
+        helper.addTree(new File(props.getProperties().getProperty("local.in")), all);
 
-        for (FTPFile file : files) {
+        for (File file : all) {
             if (file.getName().equals(filename)) {
-                if (ftp.searchInFTPFile(filename, search)) {
-                    ftp.copyFile(props.getProperties().getProperty("ftp.in") + file.getName(), props.getProperties().getProperty("ftp.out") + file.getName());
-                    message = "File has been found, checked and copied to out folder";
-                    status = 200;
+                if (searchInFile(file, search)) {
+                    if (ftp.uploadToFTP(file)) {
+                        message = "File has been found, checked and uploaded to server";
+                        status = 200;
+                    }
                 } else {
                     message = "File has been found but string " + search + " was not found";
                     status = 404;
