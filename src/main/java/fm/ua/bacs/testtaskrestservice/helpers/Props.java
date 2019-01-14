@@ -12,7 +12,7 @@ public class Props {
         InputStream input = null;
 
         try {
-            input = new FileInputStream("src/main/resources/application.properties");
+            input = new FileInputStream("./application.properties");
             prop.load(input);
         } catch (IOException ex) {
             ex.printStackTrace();
